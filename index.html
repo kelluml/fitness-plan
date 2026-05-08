@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fitness Plan">
+<title>Fitness Plan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;background:#f5f5f0;color:#1a1a1a;max-width:480px;margin:0 auto;padding-bottom:80px}
+header{background:#fff;border-bottom:1px solid #e0e0d8;padding:16px 16px 0;position:sticky;top:0;z-index:10}
+h1{font-size:17px;font-weight:600;margin-bottom:12px}
+.tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 14px;font-size:14px;font-weight:500;color:#666;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer}
+.tab.active{color:#0a6e4f;border-bottom-color:#0a6e4f}
+.section{display:none;padding:12px 16px}
+.section.active{display:block}
+.card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;border:1px solid #e8e8e0}
+.card-title{font-size:13px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.week-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.week-row label{font-size:14px;color:#666}
+.week-row select{flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff}
+.ex-block{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f0f0e8}
+.ex-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ex-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ex-num{font-size:13px;font-weight:600;color:#666;flex-shrink:0}
+.ex-header select{flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a}
+.set-header{display:grid;grid-template-columns:32px 1fr 1fr 1fr 28px;gap:4px;margin-bottom:4px}
+.set-col{font-size:11px;color:#888;text-align:center;font-weight:600}
+.set-row{display:grid;grid-template-columns:32px 1fr 1fr 1fr 28px;gap:4px;align-items:center;margin-bottom:5px}
+.set-num{font-size:12px;color:#666;text-align:center;font-weight:600}
+.set-input{border:1px solid #ddd;border-radius:6px;padding:7px 4px;font-size:14px;text-align:center;width:100%;background:#fafaf8;color:#1a1a1a;-webkit-appearance:none}
+.rm-btn{font-size:18px;color:#bbb;background:none;border:none;cursor:pointer;padding:0;line-height:1;text-align:center}
+.add-set-btn{font-size:13px;color:#0a6e4f;background:none;border:1px solid #c0e8d8;border-radius:6px;cursor:pointer;padding:5px 12px;margin-top:4px}
+.note-area{width:100%;min-height:60px;font-size:14px;border:1px solid #ddd;border-radius:8px;padding:10px;background:#fafaf8;color:#1a1a1a;resize:vertical;margin-top:8px}
+.save-btn{width:100%;padding:13px;background:#0a6e4f;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;margin-top:10px}
+.save-btn:active{background:#085a3f}
+.note-tip{background:#e1f5ee;border-radius:8px;padding:10px 12px;font-size:13px;color:#0a6e4f;line-height:1.5;margin-bottom:12px}
+.ex-item{padding:8px 0;border-bottom:1px solid #f0f0e8}
+.ex-item:last-child{border-bottom:none}
+.ex-name{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
+.ex-detail{font-size:13px;color:#666;line-height:1.5}
+.meal-item{padding:10px 0;border-bottom:1px solid #f0f0e8}
+.meal-item:last-child{border-bottom:none}
+.meal-time{font-size:11px;font-weight:600;color:#0a6e4f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.meal-name{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
+.meal-macros{font-size:12px;color:#888}
+.supp-item{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0f0e8;gap:8px}
+.supp-item:last-child{border-bottom:none}
+.supp-name{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
+.supp-why{font-size:12px;color:#888;max-width:220px;line-height:1.4}
+.supp-dose{font-size:12px;color:#1a1a1a;text-align:right;flex-shrink:0;font-weight:500;line-height:1.5}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;margin-bottom:8px}
+.badge-green{background:#e1f5ee;color:#0a6e4f}
+.badge-purple{background:#eeedfe;color:#3c3489}
+.badge-amber{background:#faeeda;color:#854f0b}
+.badge-red{background:#fceaea;color:#9b2222}
+.shop-title{font-size:13px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0e8;cursor:pointer}
+.shop-item:last-child{border-bottom:none}
+.checkbox{width:22px;height:22px;border-radius:6px;border:2px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#fff}
+.checkbox.checked{background:#0a6e4f;border-color:#0a6e4f}
+.checkbox.checked::after{content:'';width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.shop-label{font-size:15px;color:#1a1a1a}
+.shop-label.checked{text-decoration:line-through;color:#aaa}
+.history-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0e8;font-size:13px}
+.history-row:last-child{border-bottom:none}
+.pr-badge{font-size:10px;background:#faeeda;color:#854f0b;padding:1px 5px;border-radius:3px;margin-left:4px}
+.macros-bar{display:flex;gap:8px;margin-bottom:12px}
+.macro-pill{flex:1;text-align:center;background:#f0f0e8;border-radius:8px;padding:8px 4px}
+.macro-num{font-size:16px;font-weight:600;color:#1a1a1a}
+.macro-label{font-size:11px;color:#888;margin-top:2px}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.metric-cell label{font-size:12px;color:#888;display:block;margin-bottom:4px}
+.metric-cell input{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:15px;background:#fafaf8}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0a6e4f;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1}
+.clear-btn{font-size:13px;color:#cc3333;background:none;border:none;cursor:pointer;padding:4px 0;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Fitness Plan</h1>
+  <div class="tabs">
+    <button class="tab active" onclick="show('gym')">Gym</button>
+    <button class="tab" onclick="show('log')">Log</button>
+    <button class="tab" onclick="show('meals')">Meals</button>
+    <button class="tab" onclick="show('supps')">Supps</button>
+    <button class="tab" onclick="show('shop')">Shop</button>
+  </div>
+</header>
+
+<!-- GYM -->
+<div id="gym" class="section active">
+  <div class="note-tip">Progressive overload: when all reps are clean, add 5 lbs (lower body) or 2.5 lbs (upper body) next session. Log every session.</div>
+  <div class="card">
+    <div class="card-title">Day A — Lower body push</div>
+    <div class="ex-item"><div class="ex-name">Goblet squat OR Leg press</div><div class="ex-detail">3 × 10–12 reps · pyramid up each set · full depth</div></div>
+    <div class="ex-item"><div class="ex-name">Romanian deadlift (DB)</div><div class="ex-detail">3 × 10 · hinge from hips, soft knee</div></div>
+    <div class="ex-item"><div class="ex-name">Walking lunge OR Split squat</div><div class="ex-detail">2 × 12 steps each leg</div></div>
+    <div class="ex-item"><div class="ex-name">Calf raise</div><div class="ex-detail">3 × 15–20 · 3 sec slow eccentric</div></div>
+    <div class="ex-item"><div class="ex-name">Plank</div><div class="ex-detail">3 × 30–60 sec · build to 60 sec by week 6</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Day B — Upper body push/pull</div>
+    <div class="ex-item"><div class="ex-name">Seated cable row OR DB row</div><div class="ex-detail">3 × 10–12 · full scapular retraction</div></div>
+    <div class="ex-item"><div class="ex-name">Incline DB press</div><div class="ex-detail">3 × 10 · incline safer on rotator cuff</div></div>
+    <div class="ex-item"><div class="ex-name">Lat pulldown OR Assisted pull-up</div><div class="ex-detail">3 × 10–12</div></div>
+    <div class="ex-item"><div class="ex-name">DB lateral raise</div><div class="ex-detail">3 × 12–15 · light, controlled</div></div>
+    <div class="ex-item"><div class="ex-name">Face pull (cable or band)</div><div class="ex-detail">3 × 15 · rotator cuff health — don't skip</div></div>
+    <div class="ex-item"><div class="ex-name">Bicep curl / Tricep pushdown</div><div class="ex-detail">2 × 12 each, superset</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Day C — Full body compound + core</div>
+    <div class="ex-item"><div class="ex-name">Trap bar deadlift</div><div class="ex-detail">3 × 6–8 · primary strength driver</div></div>
+    <div class="ex-item"><div class="ex-name">DB floor press</div><div class="ex-detail">3 × 10</div></div>
+    <div class="ex-item"><div class="ex-name">Farmer's carry</div><div class="ex-detail">3 × 40 meters · grip, core, posture</div></div>
+    <div class="ex-item"><div class="ex-name">Step-up (box or bench)</div><div class="ex-detail">3 × 10 each leg · watch knee tracking</div></div>
+    <div class="ex-item"><div class="ex-name">Dead bug</div><div class="ex-detail">3 × 8 each side</div></div>
+    <div class="ex-item"><div class="ex-name">Bird dog</div><div class="ex-detail">3 × 10 each side</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Day D (optional) — Cardio / mobility</div>
+    <div class="ex-item"><div class="ex-name">Zone 2 cardio</div><div class="ex-detail">30–45 min · conversational pace</div></div>
+    <div class="ex-item"><div class="ex-name">Hip flexor + hamstring stretch</div><div class="ex-detail">10 min · couch stretch, 90/90, standing hamstring</div></div>
+    <div class="ex-item"><div class="ex-name">Thoracic spine mobility</div><div class="ex-detail">5 min · foam roller or cat/cow</div></div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div id="log" class="section">
+  <div class="week-row">
+    <label>Week</label>
+    <select id="log-week">
+      <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Day A — Lower body push</div>
+    <div id="log-blocks-a"></div>
+    <textarea class="note-area" id="notes-a" placeholder="Session notes — energy, form cues, anything notable..."></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Day B — Upper body push/pull</div>
+    <div id="log-blocks-b"></div>
+    <textarea class="note-area" id="notes-b" placeholder="Session notes..."></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Day C — Full body compound + core</div>
+    <div id="log-blocks-c"></div>
+    <textarea class="note-area" id="notes-c" placeholder="Session notes..."></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Body metrics this week</div>
+    <div class="metric-grid">
+      <div class="metric-cell"><label>Weight (lbs)</label><input type="number" id="m-weight" placeholder="175"></div>
+      <div class="metric-cell"><label>Waist (inches)</label><input type="number" id="m-waist" step="0.5" placeholder="32.5"></div>
+      <div class="metric-cell"><label>Sleep quality (1–10)</label><input type="number" id="m-sleep" min="1" max="10" placeholder="7"></div>
+      <div class="metric-cell"><label>Energy (1–10)</label><input type="number" id="m-energy" min="1" max="10" placeholder="7"></div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveAll()">Save this week's log</button>
+
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">Progress history</div>
+    <div id="history-list"><p style="font-size:14px;color:#888">Save your first week to see history.</p></div>
+    <button class="clear-btn" onclick="clearHistory()">Clear all saved data</button>
+  </div>
+</div>
+
+<!-- MEALS -->
+<div id="meals" class="section">
+  <div class="macros-bar">
+    <div class="macro-pill"><div class="macro-num">~2050</div><div class="macro-label">Calories</div></div>
+    <div class="macro-pill"><div class="macro-num">145–165g</div><div class="macro-label">Protein</div></div>
+    <div class="macro-pill"><div class="macro-num">~180g</div><div class="macro-label">Carbs</div></div>
+    <div class="macro-pill"><div class="macro-num">~65g</div><div class="macro-label">Fats</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Training day</div>
+    <div class="meal-item"><div class="meal-time">7:00 AM — Breakfast</div><div class="meal-name">3-egg scramble + spinach · Greek yogurt (1 cup) · berries</div><div class="meal-macros">~40g protein · 30g carb · 18g fat</div></div>
+    <div class="meal-item"><div class="meal-time">10:30 AM — Pre-workout</div><div class="meal-name">Banana + 1 scoop whey in water</div><div class="meal-macros">~25g protein · 30g carb · 2g fat</div></div>
+    <div class="meal-item"><div class="meal-time">1:00 PM — Post-workout lunch</div><div class="meal-name">6 oz salmon or chicken thigh · ¾ cup brown rice or quinoa · roasted vegetables</div><div class="meal-macros">~45g protein · 50g carb · 15g fat</div></div>
+    <div class="meal-item"><div class="meal-time">4:00 PM — Snack</div><div class="meal-name">1 cup cottage cheese · small handful walnuts · apple</div><div class="meal-macros">~28g protein · 25g carb · 10g fat</div></div>
+    <div class="meal-item"><div class="meal-time">7:00 PM — Dinner</div><div class="meal-name">6 oz lean ground turkey or steak · small sweet potato · large salad with olive oil/lemon</div><div class="meal-macros">~40g protein · 35g carb · 15g fat</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Rest day (pull carbs ~30–40g, same protein)</div>
+    <div class="meal-item"><div class="meal-time">Breakfast</div><div class="meal-name">2-egg omelet + feta + smoked salmon + avocado</div><div class="meal-macros">~38g protein · 8g carb · 22g fat</div></div>
+    <div class="meal-item"><div class="meal-time">Lunch</div><div class="meal-name">Large salad: greens, grilled chicken, chickpeas, cucumber, olive oil + vinegar</div><div class="meal-macros">~42g protein · 30g carb · 14g fat</div></div>
+    <div class="meal-item"><div class="meal-time">Snack</div><div class="meal-name">Whey shake + 1 oz almonds</div><div class="meal-macros">~28g protein · 6g carb · 14g fat</div></div>
+    <div class="meal-item"><div class="meal-time">Dinner</div><div class="meal-name">Baked cod or halibut + steamed broccoli + cauliflower mash</div><div class="meal-macros">~38g protein · 18g carb · 10g fat</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Protein sources to rotate</div>
+    <p style="font-size:14px;color:#444;line-height:1.8">Eggs · Greek yogurt · Cottage cheese · Chicken thigh · Salmon · Tuna · Ground turkey · Lean beef · Whey/casein · Edamame · Lentils · Smoked salmon · Halibut · Cod</p>
+  </div>
+</div>
+
+<!-- SUPPS -->
+<div id="supps" class="section">
+  <div class="card">
+    <span class="badge badge-green">Tier 1 — Foundation</span>
+    <div class="supp-item"><div><div class="supp-name">Whey protein</div><div class="supp-why">Casein at night for overnight muscle repair.</div></div><div class="supp-dose">25–30g/serving<br>1–2x daily</div></div>
+    <div class="supp-item"><div><div class="supp-name">Creatine monohydrate</div><div class="supp-why">Most studied supplement. Especially effective after 60 — strength, volume, cognitive benefits.</div></div><div class="supp-dose">3–5g daily<br>Any time</div></div>
+    <div class="supp-item"><div><div class="supp-name">Vitamin D3 + K2</div><div class="supp-why">Near-universal deficiency after 60. Impairs muscle and testosterone when low. K2 directs calcium to bone.</div></div><div class="supp-dose">2–4K IU D3<br>100–200 mcg K2</div></div>
+    <div class="supp-item"><div><div class="supp-name">Magnesium glycinate</div><div class="supp-why">Sleep quality, muscle recovery, testosterone metabolism. Glycinate form best tolerated.</div></div><div class="supp-dose">300–400mg<br>Before bed</div></div>
+  </div>
+  <div class="card">
+    <span class="badge badge-purple">Tier 2 — Strong supporting evidence</span>
+    <div class="supp-item"><div><div class="supp-name">Omega-3 fish oil</div><div class="supp-why">Reduces inflammation, supports joints and muscle protein synthesis.</div></div><div class="supp-dose">2–3g EPA+DHA<br>With fatty meal</div></div>
+    <div class="supp-item"><div><div class="supp-name">Collagen peptides + Vitamin C</div><div class="supp-why">Tendon and ligament integrity. Take 15–30 min pre-workout for best uptake.</div></div><div class="supp-dose">15g collagen<br>+ 200mg C pre-workout</div></div>
+    <div class="supp-item"><div><div class="supp-name">Zinc</div><div class="supp-why">Testosterone synthesis. Common deficiency in older men who sweat regularly.</div></div><div class="supp-dose">15–25mg<br>With food</div></div>
+  </div>
+  <div class="card">
+    <span class="badge badge-amber">Tier 3 — Reasonable add-ons</span>
+    <div class="supp-item"><div><div class="supp-name">Ashwagandha KSM-66</div><div class="supp-why">Modest testosterone support and cortisol reduction. Useful if stress or sleep is compromised.</div></div><div class="supp-dose">300–600mg<br>With food</div></div>
+    <div class="supp-item"><div><div class="supp-name">Citrulline malate</div><div class="supp-why">Pre-workout endurance and pump. Less disruptive to sleep than stimulant pre-workouts.</div></div><div class="supp-dose">6–8g<br>30–45 min pre-workout</div></div>
+  </div>
+  <div class="card">
+    <span class="badge badge-red">Skip — not worth it</span>
+    <div class="ex-item" style="padding:8px 0;border-bottom:1px solid #f0f0e8"><div class="ex-name">BCAAs</div><div class="ex-detail">Redundant if hitting protein targets.</div></div>
+    <div class="ex-item" style="padding:8px 0;border-bottom:1px solid #f0f0e8"><div class="ex-name">Commercial T-boosters</div><div class="ex-detail">D3, zinc, creatine, and sleep do more.</div></div>
+    <div class="ex-item" style="padding:8px 0"><div class="ex-name">Fat burners / thermogenics</div><div class="ex-detail">Disrupt sleep. Your caloric deficit is the fat burner.</div></div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="section">
+  <div class="note-tip">Tap items to check off. Data resets when you close the page.</div>
+  <div class="card">
+    <div class="shop-title">Proteins</div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Chicken thighs (boneless)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Salmon fillets</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Lean ground turkey</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Eggs (dozen)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Greek yogurt, plain 2% (large)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Cottage cheese 2%</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Smoked salmon</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Halibut or cod</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Tuna (canned in water)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Feta cheese</span></div>
+
+    <div class="shop-title">Carbs &amp; produce</div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Brown rice or quinoa</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Sweet potatoes</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Bananas</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Berries (fresh or frozen)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Apples</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Baby spinach</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Mixed salad greens</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Broccoli</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Cauliflower</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Cucumber</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Chickpeas (canned)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Avocados</span></div>
+
+    <div class="shop-title">Fats &amp; pantry</div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Extra virgin olive oil</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Walnuts</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Almonds (raw or roasted)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Lemons</span></div>
+
+    <div class="shop-title">Supplements — Tier 1</div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Whey protein powder</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Casein protein powder (optional)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Creatine monohydrate</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Vitamin D3 (2,000–4,000 IU)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Vitamin K2 (100–200 mcg)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Magnesium glycinate (300–400mg)</span></div>
+
+    <div class="shop-title">Supplements — Tier 2</div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Fish oil (high EPA+DHA)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Collagen peptides</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Vitamin C (200mg)</span></div>
+    <div class="shop-item" onclick="toggle(this)"><div class="checkbox"></div><span class="shop-label">Zinc (15–25mg)</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EXERCISES = {
+  a:[
+    {id:'a1',options:['Goblet squat','Leg press'],sets:3},
+    {id:'a2',options:['Romanian deadlift (DB)'],sets:3},
+    {id:'a3',options:['Walking lunge','Split squat'],sets:2},
+    {id:'a4',options:['Calf raise (standing)','Calf raise (seated)'],sets:3},
+    {id:'a5',options:['Plank'],sets:3,unit:'sec'}
+  ],
+  b:[
+    {id:'b1',options:['Seated cable row','Dumbbell row'],sets:3},
+    {id:'b2',options:['Incline DB press','Flat DB press'],sets:3},
+    {id:'b3',options:['Lat pulldown','Assisted pull-up'],sets:3},
+    {id:'b4',options:['DB lateral raise'],sets:3},
+    {id:'b5',options:['Face pull (cable)','Face pull (band)'],sets:3},
+    {id:'b6',options:['Bicep curl'],sets:2},
+    {id:'b7',options:['Tricep pushdown','Tricep overhead extension'],sets:2}
+  ],
+  c:[
+    {id:'c1',options:['Trap bar deadlift','Hex bar deadlift'],sets:3},
+    {id:'c2',options:['DB floor press'],sets:3},
+    {id:'c3',options:["Farmer's carry"],sets:3,unit:'m'},
+    {id:'c4',options:['Step-up'],sets:3},
+    {id:'c5',options:['Dead bug'],sets:3,unit:'reps/side'},
+    {id:'c6',options:['Bird dog'],sets:3,unit:'reps/side'}
+  ]
+};
+
+function buildBlocks(day){
+  const container=document.getElementById('log-blocks-'+day);
+  if(!container)return;
+  container.innerHTML='';
+  EXERCISES[day].forEach((ex,idx)=>{
+    const unit=ex.unit||'lbs';
+    const wLabel=unit==='sec'?'Duration':unit==='m'?'Weight (lbs)':'Weight (lbs)';
+    const rLabel=unit==='sec'?'Seconds':unit==='m'?'Meters':unit==='reps/side'?'Reps/side':'Reps';
+    const block=document.createElement('div');
+    block.className='ex-block';
+    block.id='block-'+ex.id;
+    block.innerHTML=`
+      <div class="ex-header">
+        <span class="ex-num">${idx+1}.</span>
+        <select id="sel-${ex.id}">${ex.options.map(o=>`<option>${o}</option>`).join('')}</select>
+      </div>
+      <div class="set-header">
+        <div class="set-col">Set</div>
+        <div class="set-col">${wLabel}</div>
+        <div class="set-col">${rLabel}</div>
+        <div class="set-col">RPE</div>
+        <div class="set-col"></div>
+      </div>
+      <div id="sets-${ex.id}"></div>
+      <button class="add-set-btn" onclick="addSet('${ex.id}')">+ add set</button>
+    `;
+    container.appendChild(block);
+    for(let i=0;i<ex.sets;i++) addSet(ex.id);
+  });
+}
+
+function addSet(exId){
+  const container=document.getElementById('sets-'+exId);
+  const n=container.children.length+1;
+  const row=document.createElement('div');
+  row.className='set-row';
+  row.innerHTML=`
+    <div class="set-num">S${n}</div>
+    <input class="set-input" type="number" min="0" step="2.5" placeholder="—">
+    <input class="set-input" type="number" min="0" placeholder="—">
+    <input class="set-input" type="number" min="1" max="10" placeholder="—">
+    <button class="rm-btn" onclick="removeSet(this,'${exId}')">×</button>
+  `;
+  container.appendChild(row);
+}
+
+function removeSet(btn,exId){
+  const container=btn.parentElement.parentElement;
+  if(container.children.length<=1)return;
+  btn.parentElement.remove();
+  Array.from(container.children).forEach((r,i)=>r.querySelector('.set-num').textContent='S'+(i+1));
+}
+
+function getSetData(exId){
+  return Array.from(document.getElementById('sets-'+exId).children).map(r=>{
+    const ins=r.querySelectorAll('input');
+    return{w:ins[0].value,r:ins[1].value,rpe:ins[2].value};
+  });
+}
+
+function saveAll(){
+  const week=document.getElementById('log-week').value;
+  const data={week,date:new Date().toLocaleDateString(),exercises:{}};
+  ['a','b','c'].forEach(day=>{
+    EXERCISES[day].forEach(ex=>{
+      const sel=document.getElementById('sel-'+ex.id);
+      data.exercises[ex.id]={name:sel?sel.value:'',sets:getSetData(ex.id)};
+    });
+    data['notes_'+day]=document.getElementById('notes-'+day).value;
+  });
+  data.weight=document.getElementById('m-weight').value;
+  data.waist=document.getElementById('m-waist').value;
+  data.sleep=document.getElementById('m-sleep').value;
+  data.energy=document.getElementById('m-energy').value;
+
+  const all=JSON.parse(localStorage.getItem('fitlog')||'{}');
+  all['w'+week]=data;
+  localStorage.setItem('fitlog',JSON.stringify(all));
+  showToast('Week '+week+' saved');
+  renderHistory();
+}
+
+function renderHistory(){
+  const all=JSON.parse(localStorage.getItem('fitlog')||'{}');
+  const keys=Object.keys(all).sort();
+  if(!keys.length)return;
+  const rows=keys.map(k=>{
+    const d=all[k];
+    return`<div class="history-row"><span style="font-weight:600">Wk ${d.week}</span><span>${d.weight?d.weight+' lbs':'—'}</span><span>Waist: ${d.waist?d.waist+'"':'—'}</span><span style="color:#888">${d.date}</span></div>`;
+  });
+  document.getElementById('history-list').innerHTML=rows.join('');
+}
+
+function clearHistory(){
+  if(confirm('Clear all saved log data?')){
+    localStorage.removeItem('fitlog');
+    document.getElementById('history-list').innerHTML='<p style="font-size:14px;color:#888">No history yet.</p>';
+    showToast('Data cleared');
+  }
+}
+
+function toggle(row){
+  row.querySelector('.checkbox').classList.toggle('checked');
+  row.querySelector('.shop-label').classList.toggle('checked');
+}
+
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='log')renderHistory();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+buildBlocks('a');
+buildBlocks('b');
+buildBlocks('c');
+renderHistory();
+</script>
+</body>
+</html>
